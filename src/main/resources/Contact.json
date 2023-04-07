@@ -1,0 +1,46 @@
+  [
+    {
+    "bookId": 1,
+    "firstName" : "akhila" ,
+    "lastName" : "k" ,
+    "phoneNumber" : 45698143 ,
+    "email" : "koicherlaakhila1432",
+    "address" : "moosapet" ,
+    "city" : "hyderabad" ,
+    "state" : "ts" ,
+    "pinCode" : 50003
+  } ,
+  {
+    "bookId": 2,
+    "firstName" : "krishna" ,
+    "lastName" : "veni" ,
+    "phoneNumber" : 8522057379 ,
+    "email" : "krishna435",
+    "address" : "spk" ,
+    "city" : "kothagudem" ,
+    "state" : "ts" ,
+    "pinCode" : 507128
+  } ,
+  {
+    "bookId": 1,
+    "firstName" : "mukesh" ,
+    "lastName" : "mallikanti" ,
+    "phoneNumber" : 9505850673 ,
+    "email" : "mallikanti2000",
+    "address" : "sarapaka" ,
+    "city" : "kothagudem" ,
+    "state" : "ts" ,
+    "pinCode" : 507128
+  } ,
+  {
+    "bookId": 2,
+    "firstName" : "venkateswarlu" ,
+    "lastName" : "mallikanti" ,
+    "phoneNumber" : 9700519297 ,
+    "email" : "mallikanti9",
+    "address" : "spk" ,
+    "city" : "kothagudem" ,
+    "state" : "ts" ,
+    "pinCode" : 507128
+  }
+]
