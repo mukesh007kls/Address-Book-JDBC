@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContactCRUD {
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
@@ -150,14 +152,27 @@ public class ContactCRUD {
         String lastName = bufferedReader.readLine();
         String query = String.format("delete from contact where id=%s firstName='%s' and lastName='%s';", bookId, firstName, lastName);
         commonMethods.executeConnection(query);
+        System.out.println("Contact deleted");
     }
 
     public void contactCRUD() throws IOException, SQLException {
         boolean loop = true;
+        BookCRUD bookCRUD=new BookCRUD();
+        List<Book> bookList=getBooksData();
+        if ((bookList.isEmpty())){
+            System.out.println("No book found");
+            System.out.println("Add book first");
+            bookCRUD.insertIntoBook();
+        }
         commonMethods.showBooksData();
         System.out.println("enter book id from above book details");
         String bookIdString = bufferedReader.readLine();
         int bookId = Integer.parseInt(bookIdString);
+        for (Book b:bookList) {
+            if(!(b.getBookId()==bookId)){
+                bookCRUD.insertIntoBookTable(bookId);
+            }
+        }
         while (loop) {
             System.out.println("Enter the choice:-\n(1)Add a new contact\n(2)Edit Contact Details\n(3)Display the Contacts\n(4)Delete a contact\n('0')To exit");
             int choice = Integer.parseInt(bufferedReader.readLine());
@@ -170,5 +185,19 @@ public class ContactCRUD {
             }
         }
     }
+    private List<Book> getBooksData() throws SQLException {
+        String query = "select*from book;";
+        List<Book> bookList = new ArrayList<>();
+        Connection connection = commonMethods.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            bookList.add(new Book(rs.getInt(1),rs.getString(2)));
+        }
+        statement.close();
+        connection.close();
+        return bookList;
+    }
+
 
 }

@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.example.Constants.*;
 
@@ -36,7 +38,10 @@ public class AddressBookMain {
                 switch (choice) {
                     case ADD_BOOK -> bookCRUD.createBook();
                     case ADD_CONTACT -> crud.contactCRUD();
-                    case DISPLAY_BOOK -> commonMethods.showBooksData();
+                    case DISPLAY_BOOK -> {
+                        List<Integer> bookList=commonMethods.showBooksData();
+                        if (bookList.isEmpty()) System.out.println("No books found");
+                    }
                     case DELETE_BOOK -> bookCRUD.deleteBookData();
                     case PRINT_ALL_CONTACTS -> crud.printAllContacts();
                     case WRITE_FILE_DATA_INTO_DB -> fileToDB.fileOp();

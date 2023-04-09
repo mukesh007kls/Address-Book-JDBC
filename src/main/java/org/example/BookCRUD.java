@@ -50,7 +50,7 @@ public class BookCRUD {
         commonMethods.executeConnection(query);
     }
 
-    private void insertIntoBookTable(String bookName) throws SQLException {
+    public void insertIntoBookTable(String bookName) throws SQLException {
         String query = String.format("insert into book(bookName) value('%s');", bookName);
         System.out.println(bookName + " added to table");
         commonMethods.executeConnection(query);
@@ -58,12 +58,32 @@ public class BookCRUD {
 
 
     public void deleteBookData() throws SQLException, IOException {
-        commonMethods.showBooksData();
-        System.out.println("enter the book id you want to delete from the above list:-");
-        int bookId = Integer.parseInt(bufferedReader.readLine());
-        String query1 = String.format("delete from contact where id=%s", bookId);
-        commonMethods.executeConnection(query1);
-        String query2 = String.format("delete from book where bookId=%s", bookId);
-        commonMethods.executeConnection(query2);
+        List<Integer> bookList = commonMethods.showBooksData();
+        if (bookList.isEmpty()) {
+            System.out.println("No books found");
+        } else {
+            System.out.println("enter the book id you want to delete from the above list:-");
+            int bookId = Integer.parseInt(bufferedReader.readLine());
+            String query1 = String.format("delete from contact where id=%s", bookId);
+            commonMethods.executeConnection(query1);
+            String query2 = String.format("delete from book where bookId=%s", bookId);
+            commonMethods.executeConnection(query2);
+        }
+    }
+
+    public void insertIntoBookTable(int bookId) throws SQLException, IOException {
+        System.out.println("Enter book name:-");
+        String bookName = bufferedReader.readLine();
+        String query = String.format("insert into book(bookId,bookName) value(%s,'%s');", bookId, bookName);
+        System.out.println(bookName + " added to table");
+        commonMethods.executeConnection(query);
+    }
+
+    public void insertIntoBook() throws SQLException, IOException {
+        System.out.println("Enter book name:-");
+        String bookName = bufferedReader.readLine();
+        String query = String.format("insert into book(bookName) value('%s');", bookName);
+        System.out.println(bookName + " added to table");
+        commonMethods.executeConnection(query);
     }
 }

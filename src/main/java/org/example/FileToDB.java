@@ -22,6 +22,20 @@ import java.util.List;
 public class FileToDB {
     CommonMethods commonMethods = new CommonMethods();
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+    private List<Book> getBooksData() throws SQLException {
+        String query = "select*from book;";
+        Book book=new Book();
+        List<Book> bookList = new ArrayList<>();
+        Connection connection = commonMethods.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            bookList.add(new Book(rs.getInt(1),rs.getString(2)));
+        }
+        statement.close();
+        connection.close();
+        return bookList;
+    }
 
     public List<Contact> getDataFromCSVFile() throws IOException, CsvException {
         String url = "D:\\BridgeLabzz\\AddressBookJDBCNew\\src\\main\\resources\\Contact.csv";
@@ -37,12 +51,16 @@ public class FileToDB {
         return contactList;
     }
 
-    private void writeListToDB(List<Contact> contactList) throws SQLException {
+    private void writeListToDB(List<Contact> contactList) throws SQLException, IOException {
+        BookCRUD bookCRUD=new BookCRUD();
         String query = "insert into contact(id,firstName,lastName,phoneNumber,emailId,address,city,state,pinCode) " +
                 "values(?,?,?,?,?,?,?,?,?)";
+        List<Book> bookList;
         for (Contact contact : contactList) {
+            bookList= getBooksData();
             Connection connection = commonMethods.getConnection();
             PreparedStatement statement = connection.prepareStatement(query);
+            if (!(bookList.contains(contact.getBookId()))) bookCRUD.insertIntoBookTable(contact.getBookId());
             statement.setInt(1, contact.getBookId());
             statement.setString(2, contact.getFirstName());
             statement.setString(3, contact.getLastName());
@@ -64,7 +82,6 @@ public class FileToDB {
         Reader reader = Files.newBufferedReader(filePath);
         Gson gson = new Gson();
         List<Contact> contactList = Arrays.asList(gson.fromJson(reader, Contact[].class));
-        contactList.forEach(System.out::println);
         return contactList;
     }
 
@@ -130,34 +147,60 @@ public class FileToDB {
 
     public void fileToDbIntoParticularBook() throws SQLException, IOException, CsvValidationException {
         boolean loop = true;
-        List<Contact> contactList;
-        while (loop) {
-            System.out.println("Enter choice from which file you want to read data:-\n(1)CSV\n(2)JSON");
-            int option = Integer.parseInt(bufferedReader.readLine());
-            if (option == 1) contactList = getCSVData();
-            else contactList = getJSONData();
-            commonMethods.showBooksData();
-            System.out.println("Enter the book id from above into which you want to enter contact");
-            int bookId = Integer.parseInt(bufferedReader.readLine());
-            for (Contact contact : contactList) {
-                System.out.println(contact.getFirstName() + " " + contact.getLastName());
+
+        List<Contact> contactList = new ArrayList<>();
+        BookCRUD bookCRUD = new BookCRUD();
+        List<Book> bookList = getBooksData();
+
+        System.out.println("Enter choice from which file you want to read data:-\n(1)CSV\n(2)JSON");
+        int option = Integer.parseInt(bufferedReader.readLine());
+
+        if (option == 1) contactList = getCSVData();
+        else if (option == 2) contactList = getJSONData();
+        else {
+            System.out.println("wrong option entered");
+        }
+
+        if (!(contactList.isEmpty())) {
+            while (loop) {
+                System.out.println("Enter the book name into which you want to enter contact");
+                String bookName = bufferedReader.readLine();
+                if (bookList.isEmpty()) bookCRUD.insertIntoBookTable(bookName);
+                for (Book b : bookList) {
+                    if (!(b.getBookName().equalsIgnoreCase(bookName))) {
+                        bookCRUD.insertIntoBookTable(bookName);
+                    }
+                }
+                bookList = getBooksData();
+
+                for (Contact contact : contactList) {
+                    System.out.println(contact.getFirstName() + " " + contact.getLastName());
+                }
+
+                int bookId = 0;
+                for (Book book : bookList) {
+                    if (book.getBookName().equalsIgnoreCase(bookName)) bookId = book.getBookId();
+                }
+
+                System.out.println("Enter the contact first name you want to enter ");
+                String firstName = bufferedReader.readLine();
+                System.out.println("Enter the contact last name you want to enter ");
+                String lastName = bufferedReader.readLine();
+
+                List<Contact> personList = new ArrayList<>();
+                for (Contact contact : contactList) {
+                    if (contact.getFirstName().equalsIgnoreCase(firstName) && contact.getLastName().equalsIgnoreCase(lastName)) {
+                        personList.add(new Contact(contact.getFirstName(), contact.getLastName(), contact.getPhoneNumber(),
+                                contact.geteMail(), contact.getAddress(), contact.getCity(), contact.getState(), contact.getPinCode()));
+//                    contactList.remove(contact);
+                    }
+                }
+
+                writeParticularContactFromFileTODB(personList, bookId);
+                System.out.println("if you want to add more contacts type add:-");
+                String choice = bufferedReader.readLine();
+                if (!(choice.equalsIgnoreCase("add"))) loop = false;
             }
-            System.out.println("Enter the contact first name you want to enter ");
-            String firstName = bufferedReader.readLine();
-            System.out.println("Enter the contact last name you want to enter ");
-            String lastName = bufferedReader.readLine();
-            List<Contact> personList = new ArrayList<>();
-            for (Contact contact : contactList) {
-                if (contact.getFirstName().equalsIgnoreCase(firstName) && contact.getLastName().equalsIgnoreCase(lastName))
-                    personList.add(new Contact(contact.getFirstName(), contact.getLastName(), contact.getPhoneNumber(),
-                            contact.geteMail(), contact.getAddress(), contact.getCity(), contact.getState(), contact.getPinCode()));
-            }
-            writeParticularContactFromFileTODB(personList, bookId);
-            System.out.println("if you want to add more contacts type add:-");
-            String choice = bufferedReader.readLine();
-            if (!(choice.equalsIgnoreCase("add"))) loop = false;
         }
     }
-
-
 }
